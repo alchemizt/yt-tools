@@ -1,0 +1,56 @@
+#!/bin/bash
+
+
+CUSTOM_NAME="$1"
+CATEGORY="Irish"
+
+# Parse command line arguments
+while getopts "n:c:" opt; do
+    case $opt in
+        n)
+            CUSTOM_NAME="$OPTARG"
+            ;;
+        c)
+            CATEGORY="$OPTARG"
+            ;;
+        *)
+            echo "Usage: $0 [-n custom_name] [-c category] <video_url>"
+            exit 1
+            ;;
+    esac
+done
+
+# Shift the parsed options away
+shift $((OPTIND - 1))
+
+
+
+
+
+DOWNLOAD_DIR="$HOME/Videos/downloads"
+SUBDIR="Irish"
+
+OUTPUT_PATH="${DOWNLOAD_DIR}/${SUBDIR}"
+# Ensure the output directory exists
+mkdir -p "$OUTPUT_PATH"
+
+
+#!CMD_TEMPLATE=yt-dlp -S -o "~/Videos/downloads/Orgies/
+
+DL_URL="$(wl-paste)"
+
+
+function exec_download {
+
+	DL_URL="$1"
+	OUTPATH="$2"
+
+	echo "Downloading ${DL_URL} to ${OUTPATH}"
+
+	yt-dlp -P "$OUTPATH" -o "${CUSTOM_NAME}%(title)s.%(ext)s" "${DL_URL}"
+
+	echo $DL_URL >> "$DOWNLOAD_DIR/logs/paste.log"
+
+}
+
+exec_download "$DL_URL" "$OUTPUT_PATH"

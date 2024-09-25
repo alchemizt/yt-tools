@@ -1,0 +1,53 @@
+#!/bin/bash
+
+
+function merge_files {
+    echo "MERGING FILES"
+
+    local FOLDER="~/Videos/parts"
+
+    # Check if the target is not a directory
+    if [ ! -d "$FOLDER" ]; then
+      exit 1
+    fi
+
+
+    local OUTPUTFILE="${FOLDER}/list.txt"
+    local TMPFILE="${FOLDER}/tmp.txt"
+    # Create a list of .mp4 files and format them for ffmpeg
+
+    printf '%s\n' *.mp4 | sed 's/^/file /' > "$OUTPUTFILE"
+    
+    echo "Start!"
+    
+    # Create a temporary file to store the formatted list
+    touch "$TMP_FILE"
+    
+
+
+    # Loop through files in the target directory
+    for file in "$FOLDER"/*; do
+      if [ -f "$file" ]; then
+        echo "$file"
+      fi
+    done
+
+
+    # Simply copy output.txt to tmpfile.txt
+    cat "$OUTPUTFILE" > "$TMP_FILE"
+
+    # Use the tmpfile.txt for the final output
+    mv "$TMP_FILE" "$OUTPUTFILE"
+
+
+    ffmpeg -f concat -i "$OUTPUTFILE" -c copy output.mp4
+}
+
+    
+
+
+
+
+
+
+

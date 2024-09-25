@@ -1,0 +1,153 @@
+#!/bin/bash
+
+
+DB_FILE="$HOME/Videos/lists/video_urls.db"
+
+
+
+function get_data {
+
+   local url=="$1"
+   yt-dlp --get-title --get-description --video-duration  "$url"
+
+
+
+}
+
+function create_table {
+    
+sqlite3 "$DB_FILE" <<EOF
+CREATE TABLE IF NOT EXISTS videos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    url TEXT,
+    stars TEXT,
+    category TEXT,
+    title TEXT,
+    description TEXT,
+    duration TEXT
+);
+EOF
+
+if echo "$TABLES" | grep -q 'videos'; then
+    echo "ok"
+else
+    echo "The database is empty"
+    create_table
+fi
+}
+
+# Function to insert video 
+function insert_video() {
+
+    local name="$1"
+    local url="$2"
+    local stars="$3"
+    local category="$4"
+
+    if [[ -z $url ]]; then
+        echo "You forgot to copy the URL"
+        sleep 3
+        exit
+    fi
+
+
+# Create the database and table if it doesn't exist
+
+
+
+    sqlite3 "$DB_FILE" <<EOF
+INSERT INTO videos (name, url, stars, category) VALUES ("$name", '$url', '$stars', '$category');
+EOF
+
+
+# Prompt user for video information
+
+
+# Insert the video into the database
+
+echo "Video ${name} added successfully!"
+
+echo "Database population complete."
+
+}
+
+
+function list_videos {
+   sqlite-utils rows $DB_FILE videos | python3 -mjson.tool
+   sleep 15
+   exit
+}
+    
+
+
+
+
+CUSTOM_NAME=${2:-"Untitled Video"}
+STARS=${3:-"Unknown"}
+CATEGORY=${4:-"None"}
+URL="$(wl-paste)"
+
+
+if [[ $1 == "list" ]]; then
+   FUNCTION="list"  
+   echo $FUNCTION 
+   list_videos
+elif [[ $1 == "insert" ]]; then
+    FUNCTION="insert"
+    insert_video "$CUSTOM_NAME" "$URL" "$STARS" "$CATEGORY" 
+elif [[ $1 == "merge" ]]; then
+    FUNCTION="merge"
+    merge_files 
+else
+    FUNCTION="list"
+    list_videos
+fi
+
+
+
+function merge_files {
+    echo "MERGING FILES"
+    local FOLDER="~/Videos/parts/Pool"
+    local OUTPUTFILE="${FOLDER}/list.txt"
+    local TMPFILE="${FOLDER}/tmp.txt"
+    # Create a list of .mp4 files and format them for ffmpeg
+
+    printf '%s\n' *.mp4 | sed 's/^/file /' > "$OUTPUTFILE"
+    
+    echo "Start!"
+    
+    # Create a temporary file to store the formatted list
+    touch "$TMP_FILE"
+    
+    # Check if the target is not a directory
+    if [ ! -d "$FOLDER" ]; then
+      exit 1
+    fi
+
+    # Loop through files in the target directory
+    for file in "$FOLDER"/*; do
+      if [ -f "$file" ]; then
+        echo "$file"
+      fi
+    done
+
+
+    # Simply copy output.txt to tmpfile.txt
+    cat "$OUTPUTFILE" > "$TMP_FILE"
+
+    # Use the tmpfile.txt for the final output
+    mv "$TMP_FILE" "$OUTPUTFILE"
+
+
+    ffmpeg -f concat -i "$OUTPUTFILE" -c copy output.mp4
+}
+
+    
+
+
+
+
+
+
+
